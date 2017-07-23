@@ -8,9 +8,9 @@ default: $(EXE)
 # compiler/linker settings
 
 CC=gcc
-CFLAGS=-g -O3 -Wall --std=c99 -pedantic $$(pkg-config --cflags libnotify)
+CFLAGS=-g -O3 -Wall --std=c99 -pedantic $$(pkg-config --cflags libnotify gtk+-3.0)
 CPPFLAGS=
-LDFLAGS=-g -O3 $$(pkg-config --libs libnotify)
+LDFLAGS=-g -O3 $$(pkg-config --libs libnotify gtk+-3.0)
 INSTALL=install
 INSTALLFLAGS=-C -D
 

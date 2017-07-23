@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <libnotify/notify.h>
+#include <gtk/gtk.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -113,6 +114,38 @@ int time_remaining(char **time_left_str, battery_t *batt) {
     return asprintf(time_left_str, "%02d:%02d", hours_left, mins_left);
 }
 
+void display_batt_info_dialog(battery_t *batt, char *other_data) {
+    GtkWidget* dialog = gtk_message_dialog_new(
+            NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+            "Battery information");
+    char *status_string = "";
+    switch (batt->charge_status) {
+        case CHARGING:
+            status_string = "Charging";
+            break;
+        case DISCHARGING:
+            status_string = "Discharging";
+            break;
+        case FULL:
+            status_string = "Full";
+            break;
+    }
+    gtk_message_dialog_format_secondary_text(
+            GTK_MESSAGE_DIALOG(dialog),
+            "Battery name:\t\t%s\n"
+            "Battery charge:\t\t%d\n"
+            "Charge when full:\t\t%d\n"
+            "Charing status:\t\t%s\n"
+            "Current now:\t\t\t%d\n"
+            "Current avg:\t\t\t%d\n"
+            "Charge remaining:\t%s",
+            batt->name, batt->charge_now, batt->charge_full, status_string,
+            batt->current_now, batt->current_avg, other_data);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+}
+
 int main(int argc, char **argv) {
     if (argc > 1) fprintf(stderr, "All arguments are ignored.\n");
 
@@ -150,16 +183,20 @@ int main(int argc, char **argv) {
     }
 
     char *button = getenv("BLOCK_BUTTON");
-    if (button && button[0] - '0' == 1) {
-        if (battery->charge_status != FULL) {
-            char *time_left;
-            time_remaining(&time_left, battery);
-            char *helper_text = (battery->charge_status == CHARGING) ? "Until full" : "Until empty";
-            display_notification(time_left, helper_text);
-            free(time_left);
-        } else {
-            display_notification("", "Battery full");
+    if (button) {
+        char *time_left;
+        time_remaining(&time_left, battery);
+        char *helper_text = (battery->charge_status == CHARGING) ? "Until full" : "Until empty";
+        switch((int) button[0] - '0') {
+            case 1: // Left click
+                display_notification(time_left, helper_text);
+                break;
+            case 3: // Right click
+                gtk_init(&argc, &argv);
+                display_batt_info_dialog(battery, time_left);
+                break;
         }
+        free(time_left);
     }
 
     char *formatted_string = formatted_pango(battery);
