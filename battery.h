@@ -1,3 +1,6 @@
+#ifndef BATTERY_H_
+#define BATTERY_H_
+
 #include <stdint.h>
 
 typedef enum battery_status {
@@ -22,3 +25,4 @@ uint32_t battery_health (battery_t *battery);
 uint32_t charge_percent (battery_t *battery);
 uint32_t abs_charge_percent (battery_t *battery);
 
+#endif //BATTERY_H_
