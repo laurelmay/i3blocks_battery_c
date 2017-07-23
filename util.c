@@ -4,19 +4,19 @@
 int uint_from_file(uint32_t *a, char *path) {
     FILE *file = fopen(path, "r");
     if (!file) return -1;
-    fscanf(file, "%u", a);
+    int matches = fscanf(file, "%u", a);
 
     fclose(file);
 
-    return 0;
+    return matches;
 }
 
 int string_from_file(char *string, char *path) {
     FILE *file = fopen(path, "r");
     if (!file) return -1;
-    fscanf(file, "%s", string);
+    int matches = fscanf(file, "%s", string);
 
     fclose(file);
 
-    return 0;
+    return matches;
 }
