@@ -16,7 +16,8 @@ blocklet.
 
 ## Installing
 
-Currently only installs to `~/.local/bin`
+By default, this will install to ~/.local/bin. This can be changed with
+by specifying DESTDIR and PREFIX.
 
 ```
     make install
