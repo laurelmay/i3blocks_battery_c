@@ -35,7 +35,6 @@ char *formatted_pango(battery_t *batt) {
 
     uint32_t percent = charge_percent(batt);
 
-    // variables for the remainder of formatting
     char *battery_icon, *battery_color, *plug_color;
     if (percent <= 10) {
         battery_icon = empty_battery;

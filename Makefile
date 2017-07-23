@@ -1,5 +1,5 @@
 EXE=battery
-MODS=battery.o
+MODS=battery.o util.o
 OBJS=
 LIBS=
 
