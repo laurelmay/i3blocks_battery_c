@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "battery.h"
 
 void usage() {
@@ -78,11 +79,15 @@ int formatted_pango(battery_t *batt, char **string) {
         battery_color = color_green;
     }
 
+    char *percent_color = getenv("BLOCK_COLOR");
+    if (!percent_color || strcmp(percent_color, "") == 0) {
+        percent_color = "#FFFFFF";
+    }
+
     int size = asprintf(string,
-            "<span color=\"%s\" font_desc=\"Font Awesome\">%s </span>%d%%%%\n",
+            "<span color=\"%s\" font_desc=\"Font Awesome\">%s </span>%d%%\n",
             (batt->charge_status == CHARGING) ? plug_color : battery_color,
-            battery_string,
-            percent);
+            battery_string, percent);
     free(battery_string);
     return size;
 }
@@ -97,8 +102,8 @@ void display_notification(char *time_left_str, char *helper_text) {
 
 void display_batt_info_dialog(battery_t *batt, char *time_left) {
     GtkWidget* dialog = gtk_message_dialog_new(
-            NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
-            "Battery information");
+            NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
+            "Battery information - %s", batt->name);
     char *status_string = battery_status_as_string(batt->charge_status);
     gtk_message_dialog_format_secondary_text(
             GTK_MESSAGE_DIALOG(dialog),
@@ -137,12 +142,16 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    char *formatted_string;
+    formatted_pango(battery, &formatted_string);
+
+    int pid = fork();
     char *button = getenv("BLOCK_BUTTON");
-    if (button) {
+    if (pid == 0 && button) {
         char *time_left;
         time_remaining(&time_left, battery);
         char *helper_text = (battery->charge_status == CHARGING) ? "Until full" : "Until empty";
-        switch((int) button[0] - '0') {
+        switch(button[0] - '0') {
             case 1: // Left click
                 display_notification(time_left, helper_text);
                 break;
@@ -154,12 +163,11 @@ int main(int argc, char **argv) {
         free(time_left);
     }
 
-    char *formatted_string;
-    formatted_pango(battery, &formatted_string);
-
     //For i3blocks to be really happy, print it twice
-    printf(formatted_string);
-    printf(formatted_string);
+    if (pid != 0) {
+        printf(formatted_string);
+        printf(formatted_string);
+    }
 
     // If current charge is <= 5%, status is urgent
     if (battery->charge_now <= 5) {
