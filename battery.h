@@ -8,14 +8,17 @@ typedef struct {
     char *name;
     uint32_t charge_now;
     uint32_t charge_full;
+    uint32_t charge_full_design;
+    uint32_t cycle_count;
     battery_status charge_status;
     uint32_t current_now;
     uint32_t current_avg;
 } battery_t;
 
-int battery_charge_now   (battery_t *battery);
-int battery_charge_full  (battery_t *battery);
-int battery_charge_status(battery_t *battery);
-int battery_current_now  (battery_t *battery);
-int battery_current_avg  (battery_t *battery);
+int initialize_battery (battery_t *battery, char *name);
+char *battery_status_as_string (battery_status status);
+int time_remaining (char **time_left_str, battery_t *battery);
+uint32_t battery_health (battery_t *battery);
+uint32_t charge_percent (battery_t *battery);
+uint32_t abs_charge_percent (battery_t *battery);
 

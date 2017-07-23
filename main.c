@@ -7,8 +7,6 @@
 #include <errno.h>
 #include "battery.h"
 
-#define PERCENT(X,Y) (X) * 100 / (Y)
-
 void usage() {
     printf("Usage: battery\n");
     printf("Get the current battery status formatted using Pango.\n");
@@ -35,7 +33,7 @@ char *formatted_pango(battery_t *batt) {
     char *color_orange = "#CB4B16";
     char *color_red    = "#DC322F";
 
-    uint32_t percent = PERCENT(batt->charge_now, batt->charge_full);
+    uint32_t percent = charge_percent(batt);
 
     // variables for the remainder of formatting
     char *battery_icon, *battery_color, *plug_color;
@@ -79,7 +77,7 @@ char *formatted_pango(battery_t *batt) {
 
     char *formatted_string;
     asprintf(&formatted_string,
-            "<span color=\"%s\" font_desc=\"Font Awesome 5 Regular\">%s </span>%d%%%%\n",
+            "<span color=\"%s\" font_desc=\"Font Awesome\">%s </span>%d%%%%\n",
             (batt->charge_status == CHARGING) ? plug_color : battery_color,
             battery_string,
             percent);
@@ -95,55 +93,30 @@ void display_notification(char *time_left_str, char *helper_text) {
     notify_uninit();
 }
 
-int time_remaining(char **time_left_str, battery_t *batt) {
-    // TODO: Find a better way to handle the FULL state. Maybe as "CHARGING"?
-    float time_left;
-    switch (batt->charge_status) {
-        case CHARGING:
-            time_left = ((float) batt->charge_full - (float) batt->charge_now) / (float) batt->current_avg;
-            break;
-        case DISCHARGING:
-            time_left = ((float) batt->charge_now / (float) batt->current_avg);
-            break;
-        default:
-            time_left = 0;
-            break;
-    }
-    uint8_t hours_left = (uint8_t) time_left;
-    uint8_t mins_left = (uint8_t) ((time_left - hours_left) * 60);
-    return asprintf(time_left_str, "%02d:%02d", hours_left, mins_left);
-}
-
-void display_batt_info_dialog(battery_t *batt, char *other_data) {
+void display_batt_info_dialog(battery_t *batt, char *time_left) {
     GtkWidget* dialog = gtk_message_dialog_new(
             NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
             "Battery information");
-    char *status_string = "";
-    switch (batt->charge_status) {
-        case CHARGING:
-            status_string = "Charging";
-            break;
-        case DISCHARGING:
-            status_string = "Discharging";
-            break;
-        case FULL:
-            status_string = "Full";
-            break;
-    }
+    char *status_string = battery_status_as_string(batt->charge_status);
     gtk_message_dialog_format_secondary_text(
             GTK_MESSAGE_DIALOG(dialog),
             "Battery name:\t\t%s\n"
             "Battery charge:\t\t%d\n"
             "Charge when full:\t\t%d\n"
-            "Charing status:\t\t%s\n"
+            "Design full:\t\t\t%d\n"
+            "Cycle count:\t\t\t%d\n"
+            "Charging status:\t\t%s\n"
             "Current now:\t\t\t%d\n"
             "Current avg:\t\t\t%d\n"
-            "Charge remaining:\t%s",
-            batt->name, batt->charge_now, batt->charge_full, status_string,
-            batt->current_now, batt->current_avg, other_data);
+            "%% Charged:\t\t\t%d%%\n"
+            "Time remaining:\t\t%s\n"
+            "Battery health:\t\t%d%%\n",
+            batt->name, batt->charge_now, batt->charge_full,
+            batt->charge_full_design, batt->cycle_count, status_string,
+            batt->current_now, batt->current_avg,
+            charge_percent(batt), time_left, battery_health(batt));
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
-
 }
 
 int main(int argc, char **argv) {
@@ -151,35 +124,14 @@ int main(int argc, char **argv) {
 
     battery_t *battery = calloc(1, sizeof(battery_t));
 
-    battery->name = getenv("BLOCK_INSTANCE");
-    if (!battery->name || strcmp(battery->name, "") == 0) {
-        battery->name = "BAT0";
+    char *name = getenv("BLOCK_INSTANCE");
+    if (!name || strcmp(name, "") == 0) {
+        name = "BAT0";
     }
 
-    if (battery_charge_now(battery)) {
-        fprintf(stderr, "Unable to get current charge stats.");
+    if (initialize_battery(battery, name)) {
         free(battery);
         return 1;
-    }
-    if (battery_charge_full(battery)) {
-        fprintf(stderr, "Unable to get full charge info.");
-        free(battery);
-        return 2;
-    }
-    if (battery_charge_status(battery)) {
-        fprintf(stderr, "Unable to get charging status.");
-        free(battery);
-        return 3;
-    }
-    if (battery_current_now(battery)) {
-        fprintf(stderr, "Unable to get current info.");
-        free(battery);
-        return 4;
-    }
-    if (battery_current_avg(battery)) {
-        fprintf(stderr, "Unable to get avg current info.");
-        free(battery);
-        return 5;
     }
 
     char *button = getenv("BLOCK_BUTTON");
