@@ -10,11 +10,14 @@ blocklet.
 
 ## Building
 
+```
     make
+```
 
 ## Installing
 
-Currently only installs to ~/.local/bin
+Currently only installs to `~/.local/bin`
 
+```
     make install
-
+```
