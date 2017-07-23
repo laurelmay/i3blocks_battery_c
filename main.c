@@ -123,27 +123,27 @@ int main(int argc, char **argv) {
         battery->name = "BAT0";
     }
 
-    if (!battery_charge_now(battery)) {
+    if (battery_charge_now(battery)) {
         fprintf(stderr, "Unable to get current charge stats.");
         free(battery);
         return 1;
     }
-    if (!battery_charge_full(battery)) {
+    if (battery_charge_full(battery)) {
         fprintf(stderr, "Unable to get full charge info.");
         free(battery);
         return 2;
     }
-    if (!battery_charge_status(battery)) {
+    if (battery_charge_status(battery)) {
         fprintf(stderr, "Unable to get charging status.");
         free(battery);
         return 3;
     }
-    if (!battery_current_now(battery)) {
+    if (battery_current_now(battery)) {
         fprintf(stderr, "Unable to get current info.");
         free(battery);
         return 4;
     }
-    if (!battery_current_avg(battery)) {
+    if (battery_current_avg(battery)) {
         fprintf(stderr, "Unable to get avg current info.");
         free(battery);
         return 5;

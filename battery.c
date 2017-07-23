@@ -12,12 +12,12 @@ int battery_charge_now(battery_t *batt) {
             "/sys/class/power_supply/%s/charge_now", batt->name);
     FILE *battery_charge_now_file = fopen(battery_charge_now_file_path, "r");
 
-    if (!battery_charge_now_file) return 0;
+    if (!battery_charge_now_file) return 1;
 
     uint32_t current_charge;
     fscanf(battery_charge_now_file, "%u", &current_charge);
     batt->charge_now = current_charge;
-    return 1;
+    return 0;
 }
 
 int battery_charge_full(battery_t *batt) {
@@ -26,12 +26,12 @@ int battery_charge_full(battery_t *batt) {
             "/sys/class/power_supply/%s/charge_full", batt->name);
     FILE *battery_charge_full_file = fopen(battery_charge_full_file_path, "r");
 
-    if (!battery_charge_full_file) return 0;
+    if (!battery_charge_full_file) return 1;
 
     uint32_t charge_full;
     fscanf(battery_charge_full_file, "%u", &charge_full);
     batt->charge_full = charge_full;
-    return 1;
+    return 0;
 }
 
 int battery_charge_status(battery_t *batt) {
@@ -40,7 +40,7 @@ int battery_charge_status(battery_t *batt) {
             "/sys/class/power_supply/%s/status", batt->name);
     FILE *battery_status_file = fopen(battery_status_file_path, "r");
 
-    if (!battery_status_file) return 0;
+    if (!battery_status_file) return 1;
 
     char charge_status[10];
     fscanf(battery_status_file, "%s", charge_status);
@@ -55,7 +55,7 @@ int battery_charge_status(battery_t *batt) {
         return 0;
     }
 
-    return 1;
+    return 0;
 }
 
 int battery_current_now(battery_t *batt) {
@@ -64,12 +64,12 @@ int battery_current_now(battery_t *batt) {
             "/sys/class/power_supply/%s/current_now", batt->name);
     FILE *battery_current_now_file = fopen(battery_current_now_file_path, "r");
 
-    if (!battery_current_now_file) return 0;
+    if (!battery_current_now_file) return 1;
 
     uint32_t current_now;
     fscanf(battery_current_now_file, "%u", &current_now);
     batt->current_now = current_now;
-    return 1;
+    return 0;
 }
 
 int battery_current_avg(battery_t *batt) {
@@ -78,11 +78,11 @@ int battery_current_avg(battery_t *batt) {
             "/sys/class/power_supply/%s/current_avg", batt->name);
     FILE *battery_current_avg_file = fopen(battery_current_avg_file_path, "r");
 
-    if (!battery_current_avg_file) return 0;
+    if (!battery_current_avg_file) return 1;
 
     uint32_t current_avg;
     fscanf(battery_current_avg_file, "%u", &current_avg);
     batt->current_avg = current_avg;
-    return 1;
+    return 0;
 }
 
