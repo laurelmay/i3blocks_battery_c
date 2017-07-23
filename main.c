@@ -116,7 +116,7 @@ int time_remaining(char **time_left_str, battery_t *batt) {
 int main(int argc, char **argv) {
     if (argc > 1) fprintf(stderr, "All arguments are ignored.\n");
 
-    battery_t *battery = malloc(sizeof(battery_t));
+    battery_t *battery = calloc(1, sizeof(battery_t));
 
     battery->name = getenv("BLOCK_INSTANCE");
     if (!battery->name || strcmp(battery->name, "") == 0) {
@@ -125,22 +125,27 @@ int main(int argc, char **argv) {
 
     if (!battery_charge_now(battery)) {
         fprintf(stderr, "Unable to get current charge stats.");
+        free(battery);
         return 1;
     }
     if (!battery_charge_full(battery)) {
         fprintf(stderr, "Unable to get full charge info.");
+        free(battery);
         return 2;
     }
     if (!battery_charge_status(battery)) {
         fprintf(stderr, "Unable to get charging status.");
+        free(battery);
         return 3;
     }
     if (!battery_current_now(battery)) {
         fprintf(stderr, "Unable to get current info.");
+        free(battery);
         return 4;
     }
     if (!battery_current_avg(battery)) {
         fprintf(stderr, "Unable to get avg current info.");
+        free(battery);
         return 5;
     }
 
@@ -162,6 +167,12 @@ int main(int argc, char **argv) {
     //For i3blocks to be really happy, print it twice
     printf(formatted_string);
     printf(formatted_string);
+
+    // If current charge is <= 5%, status is urgent
+    if (battery->charge_now <= 5) {
+        free(battery);
+        return 33;
+    }
 
     free(formatted_string);
     free(battery);
