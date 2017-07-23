@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include "battery.h"
 
 void usage() {
@@ -16,7 +15,7 @@ void usage() {
     printf("      provided, BAT0 is assumed.\n");
 }
 
-char *formatted_pango(battery_t *batt) {
+int formatted_pango(battery_t *batt, char **string) {
     // FontAwesome Symbols         CODE        SYMBOL
     char *plug                  = "\uF1E6"; // 
     char *check_icon            = "\uF00C"; // 
@@ -57,31 +56,35 @@ char *formatted_pango(battery_t *batt) {
     plug_color = (percent < 95) ? color_orange : color_green;
 
     char *battery_string;
+    int battery_str_len;
     switch (batt->charge_status) {
         case FULL:
-            asprintf(&battery_string, "%s %s", check_icon, battery_icon);
+            battery_str_len = asprintf(&battery_string, "%s %s", check_icon, battery_icon);
             break;
         case CHARGING:
-            asprintf(&battery_string, "%s", plug);
+            battery_str_len = asprintf(&battery_string, "%s", plug);
             break;
         case DISCHARGING:
-            asprintf(&battery_string,"%s", battery_icon);
+            battery_str_len = asprintf(&battery_string,"%s", battery_icon);
             break;
         default:
-            return malloc(sizeof(char));
+            return -1;
     }
+    if (battery_str_len == -1) return -1;
 
     // If the battery is reported to be full, just say it's 100%
-    if (batt->charge_status == FULL) percent = 100;
+    if (batt->charge_status == FULL) {
+        percent = 100;
+        battery_color = color_green;
+    }
 
-    char *formatted_string;
-    asprintf(&formatted_string,
+    int size = asprintf(string,
             "<span color=\"%s\" font_desc=\"Font Awesome\">%s </span>%d%%%%\n",
             (batt->charge_status == CHARGING) ? plug_color : battery_color,
             battery_string,
             percent);
     free(battery_string);
-    return formatted_string;
+    return size;
 }
 
 void display_notification(char *time_left_str, char *helper_text) {
@@ -128,7 +131,8 @@ int main(int argc, char **argv) {
         name = "BAT0";
     }
 
-    if (initialize_battery(battery, name)) {
+    if (initialize_battery(battery, name) != 0) {
+        fprintf(stderr, "Unable to initialize battery");
         free(battery);
         return 1;
     }
@@ -150,7 +154,8 @@ int main(int argc, char **argv) {
         free(time_left);
     }
 
-    char *formatted_string = formatted_pango(battery);
+    char *formatted_string;
+    formatted_pango(battery, &formatted_string);
 
     //For i3blocks to be really happy, print it twice
     printf(formatted_string);

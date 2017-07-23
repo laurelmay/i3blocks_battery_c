@@ -9,10 +9,13 @@
 #include "battery.h"
 #include "util.h"
 
+#define PERCENT(X, Y) ((X) * 100 / (Y))
+
 int battery_charge_now(battery_t *batt) {
     char *battery_charge_now_file;
-    asprintf(&battery_charge_now_file,
+    int size = asprintf(&battery_charge_now_file,
             "/sys/class/power_supply/%s/charge_now", batt->name);
+    if (size == -1) return -1;
 
     uint_from_file(&batt->charge_now, battery_charge_now_file);
 
@@ -23,8 +26,9 @@ int battery_charge_now(battery_t *batt) {
 
 int battery_charge_full(battery_t *batt) {
     char *battery_charge_full_file;
-    asprintf(&battery_charge_full_file,
+    int size = asprintf(&battery_charge_full_file,
             "/sys/class/power_supply/%s/charge_full", batt->name);
+    if (size == -1) return -1;
 
     uint_from_file(&batt->charge_full, battery_charge_full_file);
 
@@ -35,8 +39,9 @@ int battery_charge_full(battery_t *batt) {
 
 int battery_charge_status(battery_t *batt) {
     char *battery_status_file;
-    asprintf(&battery_status_file,
+    int size = asprintf(&battery_status_file,
             "/sys/class/power_supply/%s/status", batt->name);
+    if (size == -1) return -1;
 
     char charge_status[13];
     string_from_file(charge_status, battery_status_file);
@@ -48,7 +53,7 @@ int battery_charge_status(battery_t *batt) {
     } else if (strcmp(charge_status, "Full") == 0) {
         batt->charge_status = FULL;
     } else {
-        return 0;
+        return -1;
     }
 
     free(battery_status_file);
@@ -58,8 +63,9 @@ int battery_charge_status(battery_t *batt) {
 
 int battery_current_now(battery_t *batt) {
     char *battery_current_now_file;
-    asprintf(&battery_current_now_file,
+    int size = asprintf(&battery_current_now_file,
             "/sys/class/power_supply/%s/current_now", batt->name);
+    if (size == -1) return -1;
 
     uint_from_file(&batt->current_now, battery_current_now_file);
 
@@ -70,8 +76,9 @@ int battery_current_now(battery_t *batt) {
 
 int battery_current_avg(battery_t *batt) {
     char *battery_current_avg_file;
-    asprintf(&battery_current_avg_file,
+    int size = asprintf(&battery_current_avg_file,
             "/sys/class/power_supply/%s/current_avg", batt->name);
+    if (size == -1) return -1;
 
     uint_from_file(&batt->current_avg, battery_current_avg_file);
 
@@ -82,8 +89,9 @@ int battery_current_avg(battery_t *batt) {
 
 int battery_charge_full_design(battery_t *batt) {
     char *battery_charge_full_design_file;
-    asprintf(&battery_charge_full_design_file,
+    int size = asprintf(&battery_charge_full_design_file,
             "/sys/class/power_supply/%s/charge_full_design", batt->name);
+    if (size == -1) return -1;
 
     uint_from_file(&batt->charge_full_design, battery_charge_full_design_file);
 
@@ -94,8 +102,9 @@ int battery_charge_full_design(battery_t *batt) {
 
 int battery_cycle_count(battery_t *batt) {
     char *battery_cycle_count_file;
-    asprintf(&battery_cycle_count_file,
+    int size = asprintf(&battery_cycle_count_file,
             "/sys/class/power_supply/%s/cycle_count", batt->name);
+    if (size == -1) return -1;
 
     uint_from_file(&batt->cycle_count, battery_cycle_count_file);
 
@@ -152,13 +161,13 @@ int time_remaining(char **time_left_str, battery_t *batt) {
 }
 
 uint32_t battery_health(battery_t *batt) {
-    return batt->charge_full * 100 / batt->charge_full_design;
+    return PERCENT(batt->charge_full, batt->charge_full_design);
 }
 
 uint32_t charge_percent(battery_t *batt) {
-    return batt->charge_now * 100 / batt->charge_full;
+    return PERCENT(batt->charge_now, batt->charge_full);
 }
 
 uint32_t abs_charge_percent(battery_t *batt) {
-    return batt->charge_now * 100 / batt->charge_full_design;
+    return PERCENT(batt->charge_now, batt->charge_full_design);
 }

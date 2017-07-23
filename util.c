@@ -6,7 +6,7 @@
 
 int uint_from_file(uint32_t *a, char *path) {
     FILE *file = fopen(path, "r");
-    if (!file) return 1;
+    if (!file) return -1;
     fscanf(file, "%u", a);
 
     fclose(file);
@@ -16,7 +16,7 @@ int uint_from_file(uint32_t *a, char *path) {
 
 int string_from_file(char *string, char *path) {
     FILE *file = fopen(path, "r");
-    if (!file) return 1;
+    if (!file) return -1;
     fscanf(file, "%s", string);
 
     fclose(file);
