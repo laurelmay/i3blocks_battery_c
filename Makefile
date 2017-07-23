@@ -1,5 +1,4 @@
-EXE=battery
-MODS=battery.o util.o
+TARGET=battery
 
 CC=gcc
 CFLAGS=-g -O3 -Wall -Wextra --std=c99 -pedantic $$(pkg-config --cflags libnotify gtk+-3.0)
@@ -10,21 +9,24 @@ INSTALLFLAGS=-C -D
 DESTDIR=
 PREFIX=$(HOME)/.local
 
-.PHONY: default
-default: $(EXE)
+SRCS=main.c util.c battery.c
+OBJS=$(SRCS:.c=.o)
 
-$(EXE): main.o $(MODS) $(OBJS)
-	$(CC) $(LDFLAGS) -o $(EXE) $^ $(LIBS)
+.PHONY: default
+default: $(TARGET)
+
+$(TARGET): main.o $(OBJS)
+	$(CC) $(LDFLAGS) -o $(TARGET) $^ $(LIBS)
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 .PHONY: clean
 clean:
-	rm -f $(EXE) main.o $(MODS)
+	rm -f $(TARGET) main.o $(OBJS)
 
 .PHONY: install
 install:
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
-	$(INSTALL) $(INSTALLFLAGS) $(EXE) $(DESTDIR)$(PREFIX)/bin/$(EXE)
+	$(INSTALL) $(INSTALLFLAGS) $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
