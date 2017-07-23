@@ -10,10 +10,11 @@ blocklet.
 
 ## Building
 
-   make
+    make
 
 ## Installing
 
 Currently only installs to ~/.local/bin
 
-   make install
+    make install
+
