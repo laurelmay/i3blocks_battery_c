@@ -44,11 +44,11 @@ int battery_current_avg(battery_t *batt) {
 }
 
 int battery_charge_full_design(battery_t *batt) {
-    return read_battery_data_int(&batt->current_avg, batt->name, "charge_full_design");
+    return read_battery_data_int(&batt->charge_full_design, batt->name, "charge_full_design");
 }
 
 int battery_cycle_count(battery_t *batt) {
-    return read_battery_data_int(&batt->current_avg, batt->name, "cycle_count");
+    return read_battery_data_int(&batt->cycle_count, batt->name, "cycle_count");
 }
 
 /* Exported functions begin here */
