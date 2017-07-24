@@ -160,7 +160,8 @@ int main(int argc, char **argv) {
 
     //For i3blocks to be really happy, print it twice
     if (pid != 0) {
-        printf("%1$s%1$s", formatted_string);
+        printf("%s", formatted_string);
+        printf("%s", formatted_string);
     }
 
     // If current charge is <= 5%, status is urgent
