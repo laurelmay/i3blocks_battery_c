@@ -79,11 +79,6 @@ int formatted_pango(battery_t *batt, char **string) {
         battery_color = color_green;
     }
 
-    char *percent_color = getenv("BLOCK_COLOR");
-    if (!percent_color || strcmp(percent_color, "") == 0) {
-        percent_color = "#FFFFFF";
-    }
-
     int size = asprintf(string,
             "<span color=\"%s\" font_desc=\"Font Awesome\">%s </span>%d%%\n",
             (batt->charge_status == CHARGING) ? plug_color : battery_color,
