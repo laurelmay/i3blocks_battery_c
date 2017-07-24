@@ -1,7 +1,7 @@
 TARGET=battery
 
 CC=gcc
-CFLAGS=-O3 -Wall -Wextra --std=c99 -pedantic $$(pkg-config --cflags libnotify gtk+-3.0)
+override CFLAGS := -O3 -Wall -Wextra --std=c99 -pedantic $$(pkg-config --cflags libnotify gtk+-3.0) $(CFLAGS)
 CPPFLAGS=
 LDFLAGS=-O3 $$(pkg-config --libs libnotify gtk+-3.0)
 INSTALL=install

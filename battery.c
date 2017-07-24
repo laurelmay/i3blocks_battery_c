@@ -1,4 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
 
 #include <stdint.h>
@@ -12,39 +11,16 @@
 #define PERCENT(X, Y) ((X) * 100 / (Y))
 
 int battery_charge_now(battery_t *batt) {
-    char *battery_charge_now_file;
-    int size = asprintf(&battery_charge_now_file,
-            "/sys/class/power_supply/%s/charge_now", batt->name);
-    if (size == -1) return -1;
-
-    uint_from_file(&batt->charge_now, battery_charge_now_file);
-
-    free(battery_charge_now_file);
-
-    return 0;
+    return read_battery_data_int(&batt->charge_now, batt->name, "charge_now");
 }
 
 int battery_charge_full(battery_t *batt) {
-    char *battery_charge_full_file;
-    int size = asprintf(&battery_charge_full_file,
-            "/sys/class/power_supply/%s/charge_full", batt->name);
-    if (size == -1) return -1;
-
-    uint_from_file(&batt->charge_full, battery_charge_full_file);
-
-    free(battery_charge_full_file);
-
-    return 0;
+    return read_battery_data_int(&batt->charge_full, batt->name, "charge_full");
 }
 
 int battery_charge_status(battery_t *batt) {
-    char *battery_status_file;
-    int size = asprintf(&battery_status_file,
-            "/sys/class/power_supply/%s/status", batt->name);
-    if (size == -1) return -1;
-
     char charge_status[13];
-    string_from_file(charge_status, battery_status_file);
+    read_battery_data_str(charge_status, batt->name, "status");
 
     if (strcmp(charge_status, "Charging") == 0) {
         batt->charge_status = CHARGING;
@@ -56,61 +32,23 @@ int battery_charge_status(battery_t *batt) {
         return -1;
     }
 
-    free(battery_status_file);
-
     return 0;
 }
 
 int battery_current_now(battery_t *batt) {
-    char *battery_current_now_file;
-    int size = asprintf(&battery_current_now_file,
-            "/sys/class/power_supply/%s/current_now", batt->name);
-    if (size == -1) return -1;
-
-    uint_from_file(&batt->current_now, battery_current_now_file);
-
-    free(battery_current_now_file);
-
-    return 0;
+    return read_battery_data_int(&batt->current_now, batt->name, "current_now");
 }
 
 int battery_current_avg(battery_t *batt) {
-    char *battery_current_avg_file;
-    int size = asprintf(&battery_current_avg_file,
-            "/sys/class/power_supply/%s/current_avg", batt->name);
-    if (size == -1) return -1;
-
-    uint_from_file(&batt->current_avg, battery_current_avg_file);
-
-    free(battery_current_avg_file);
-
-    return 0;
+    return read_battery_data_int(&batt->current_avg, batt->name, "current_avg");
 }
 
 int battery_charge_full_design(battery_t *batt) {
-    char *battery_charge_full_design_file;
-    int size = asprintf(&battery_charge_full_design_file,
-            "/sys/class/power_supply/%s/charge_full_design", batt->name);
-    if (size == -1) return -1;
-
-    uint_from_file(&batt->charge_full_design, battery_charge_full_design_file);
-
-    free(battery_charge_full_design_file);
-
-    return 0;
+    return read_battery_data_int(&batt->current_avg, batt->name, "charge_full_design");
 }
 
 int battery_cycle_count(battery_t *batt) {
-    char *battery_cycle_count_file;
-    int size = asprintf(&battery_cycle_count_file,
-            "/sys/class/power_supply/%s/cycle_count", batt->name);
-    if (size == -1) return -1;
-
-    uint_from_file(&batt->cycle_count, battery_cycle_count_file);
-
-    free(battery_cycle_count_file);
-
-    return 0;
+    return read_battery_data_int(&batt->current_avg, batt->name, "cycle_count");
 }
 
 /* Exported functions begin here */

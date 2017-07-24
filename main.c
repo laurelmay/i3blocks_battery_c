@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char *formatted_string;
+    char *formatted_string = NULL;
     formatted_pango(battery, &formatted_string);
 
     int pid = fork();
@@ -160,8 +160,7 @@ int main(int argc, char **argv) {
 
     //For i3blocks to be really happy, print it twice
     if (pid != 0) {
-        printf(formatted_string);
-        printf(formatted_string);
+        printf("%1$s%1$s", formatted_string);
     }
 
     // If current charge is <= 5%, status is urgent
