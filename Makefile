@@ -1,7 +1,7 @@
 TARGET=battery
 
 CC=gcc
-override CFLAGS := -O3 -Wall -Wextra --std=c99 -pedantic $$(pkg-config --cflags libnotify gtk+-3.0) $(CFLAGS)
+override CFLAGS := -O3 -Wall -Wextra --std=c99 -pedantic $(CFLAGS) $$(pkg-config --cflags libnotify gtk+-3.0)
 CPPFLAGS=
 LDFLAGS=-O3 $$(pkg-config --libs libnotify gtk+-3.0)
 INSTALL=install
@@ -14,6 +14,10 @@ OBJS=$(SRCS:.c=.o)
 
 .PHONY: default
 default: $(TARGET)
+
+.PHONY: debug
+debug: CFLAGS += -g -O0
+debug: $(TARGET)
 
 $(TARGET): main.o $(OBJS)
 	$(CC) $(LDFLAGS) -o $(TARGET) $^ $(LIBS)
