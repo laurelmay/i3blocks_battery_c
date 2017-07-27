@@ -6,6 +6,7 @@ env:
 addons:
   apt:
     packages:
+      - pkg-config
       - libnotify-dev
       - libgtk-3-dev
 
