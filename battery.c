@@ -79,15 +79,15 @@ char *battery_status_as_string(battery_status status) {
     }
 }
 
-int time_remaining(char **time_left_str, battery_t *batt) {
+int time_remaining(char **time_left_str, battery_t batt) {
     // TODO: Find a better way to handle the FULL state. Maybe as "CHARGING"?
     float time_left;
-    switch (batt->charge_status) {
+    switch (batt.charge_status) {
         case CHARGING:
-            time_left = ((float) batt->charge_full - (float) batt->charge_now) / (float) batt->current_avg;
+            time_left = ((float) batt.charge_full - (float) batt.charge_now) / (float) batt.current_avg;
             break;
         case DISCHARGING:
-            time_left = ((float) batt->charge_now / (float) batt->current_avg);
+            time_left = ((float) batt.charge_now / (float) batt.current_avg);
             break;
         default:
             time_left = 0;
@@ -98,14 +98,14 @@ int time_remaining(char **time_left_str, battery_t *batt) {
     return asprintf(time_left_str, "%02d:%02d", hours_left, mins_left);
 }
 
-uint32_t battery_health(battery_t *batt) {
-    return PERCENT(batt->charge_full, batt->charge_full_design);
+uint32_t battery_health(battery_t batt) {
+    return PERCENT(batt.charge_full, batt.charge_full_design);
 }
 
-uint32_t charge_percent(battery_t *batt) {
-    return PERCENT(batt->charge_now, batt->charge_full);
+uint32_t charge_percent(battery_t batt) {
+    return PERCENT(batt.charge_now, batt.charge_full);
 }
 
-uint32_t abs_charge_percent(battery_t *batt) {
-    return PERCENT(batt->charge_now, batt->charge_full_design);
+uint32_t abs_charge_percent(battery_t batt) {
+    return PERCENT(batt.charge_now, batt.charge_full_design);
 }

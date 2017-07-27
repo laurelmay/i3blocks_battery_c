@@ -16,7 +16,7 @@ void usage() {
     printf("      provided, BAT0 is assumed.\n");
 }
 
-int formatted_pango(battery_t *batt, char **string) {
+int formatted_pango(battery_t batt, char **string) {
     // FontAwesome Symbols         CODE        SYMBOL
     char *plug                  = "\uF1E6"; // 
     char *check_icon            = "\uF00C"; // 
@@ -58,7 +58,7 @@ int formatted_pango(battery_t *batt, char **string) {
 
     char *battery_string;
     int battery_str_len;
-    switch (batt->charge_status) {
+    switch (batt.charge_status) {
         case FULL:
             battery_str_len = asprintf(&battery_string, "%s %s", check_icon, battery_icon);
             break;
@@ -74,14 +74,14 @@ int formatted_pango(battery_t *batt, char **string) {
     if (battery_str_len == -1) return -1;
 
     // If the battery is reported to be full, just say it's 100%
-    if (batt->charge_status == FULL) {
+    if (batt.charge_status == FULL) {
         percent = 100;
         battery_color = color_green;
     }
 
     int size = asprintf(string,
             "<span color=\"%s\" font_desc=\"Font Awesome\">%s </span>%d%%\n",
-            (batt->charge_status == CHARGING) ? plug_color : battery_color,
+            (batt.charge_status == CHARGING) ? plug_color : battery_color,
             battery_string, percent);
     free(battery_string);
     return size;
@@ -95,11 +95,11 @@ void display_notification(char *time_left_str, char *helper_text) {
     notify_uninit();
 }
 
-void display_batt_info_dialog(battery_t *batt, char *time_left) {
+void display_batt_info_dialog(battery_t batt, char *time_left) {
     GtkWidget* dialog = gtk_message_dialog_new(
             NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
-            "Battery information - %s", batt->name);
-    char *status_string = battery_status_as_string(batt->charge_status);
+            "Battery information - %s", batt.name);
+    char *status_string = battery_status_as_string(batt.charge_status);
     gtk_message_dialog_format_secondary_text(
             GTK_MESSAGE_DIALOG(dialog),
             "Battery name:\t\t%s\n"
@@ -113,9 +113,9 @@ void display_batt_info_dialog(battery_t *batt, char *time_left) {
             "%% Charged:\t\t\t%d%%\n"
             "Time remaining:\t\t%s\n"
             "Battery health:\t\t%d%%\n",
-            batt->name, batt->charge_now, batt->charge_full,
-            batt->charge_full_design, batt->cycle_count, status_string,
-            batt->current_now, batt->current_avg,
+            batt.name, batt.charge_now, batt.charge_full,
+            batt.charge_full_design, batt.cycle_count, status_string,
+            batt.current_now, batt.current_avg,
             charge_percent(batt), time_left, battery_health(batt));
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
@@ -138,13 +138,13 @@ int main(int argc, char **argv) {
     }
 
     char *formatted_string = NULL;
-    formatted_pango(battery, &formatted_string);
+    formatted_pango(*battery, &formatted_string);
 
     int pid = fork();
     char *button = getenv("BLOCK_BUTTON");
     if (pid == 0 && button) {
         char *time_left;
-        time_remaining(&time_left, battery);
+        time_remaining(&time_left, *battery);
         char *helper_text = (battery->charge_status == CHARGING) ? "Until full" : "Until empty";
         switch(button[0] - '0') {
             case 1: // Left click
@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
                 break;
             case 3: // Right click
                 gtk_init(&argc, &argv);
-                display_batt_info_dialog(battery, time_left);
+                display_batt_info_dialog(*battery, time_left);
                 break;
         }
         free(time_left);
@@ -166,6 +166,7 @@ int main(int argc, char **argv) {
 
     // If current charge is <= 5%, status is urgent
     if (battery->charge_now <= 5) {
+        free(formatted_string);
         free(battery);
         return 33;
     }
