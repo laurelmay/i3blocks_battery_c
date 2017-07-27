@@ -1,6 +1,6 @@
 EXE=battery
 
-CC=gcc
+CC ?= gcc
 override CFLAGS := -O3 -Wall -Wextra --std=c99 -pedantic $(CFLAGS) $$(pkg-config --cflags libnotify gtk+-3.0)
 CPPFLAGS=
 LDFLAGS=-O3 $$(pkg-config --libs libnotify gtk+-3.0)
@@ -15,11 +15,13 @@ OBJS=$(SRCS:.c=.o)
 .PHONY: default
 default: all
 
-.PHONY: debug
-debug: CFLAGS += -g -O0
-debug: all
+#debug: CFLAGS += -g -O0
+#debug: all
 
-all: main.o $(OBJS)
+.PHONY: all
+all: $(EXE)
+
+$(EXE): main.o $(OBJS)
 	$(CC) $(LDFLAGS) -o $(EXE) $^ $(LIBS)
 
 %.o: %.c
@@ -34,3 +36,4 @@ install:
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL) $(INSTALLFLAGS) $(EXE) $(DESTDIR)$(PREFIX)/bin/$(EXE)
 
+.PHONY: all default clean install
