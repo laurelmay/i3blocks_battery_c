@@ -1,0 +1,16 @@
+language: c
+
+env:
+  - TARGET=all
+
+addons:
+  apt:
+    packages:
+      - libnotify-dev
+      - libgtk-3-dev
+
+compiler:
+  - gcc
+  - clang
+
+script: make clean all install
