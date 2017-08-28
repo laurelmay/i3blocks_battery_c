@@ -1,8 +1,8 @@
 #define _GNU_SOURCE
 
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "battery.h"
@@ -68,14 +68,10 @@ int initialize_battery(battery_t *battery, char *name) {
 
 char *battery_status_as_string(battery_status status) {
     switch(status) {
-        case CHARGING:
-            return "Charging";
-        case DISCHARGING:
-            return "Discharging";
-        case FULL:
-            return "Full";
-        default:
-            return "Unknown";
+        case CHARGING:      return "Charging";
+        case DISCHARGING:   return "Discharging";
+        case FULL:          return "Full";
+        default:            return "Unknown";
     }
 }
 

@@ -1,10 +1,12 @@
 #define _GNU_SOURCE
-#include <libnotify/notify.h>
-#include <gtk/gtk.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+#include <gtk/gtk.h>
+#include <libnotify/notify.h>
+
 #include "battery.h"
 
 void usage() {
