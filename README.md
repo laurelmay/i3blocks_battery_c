@@ -8,6 +8,7 @@ dialog with extended information about the battery.
 
 ## Dependencies
 
+* `pkg-config`
 * `libnotify`
 * `gtk+-3.0`
 
@@ -31,3 +32,8 @@ by specifying DESTDIR and PREFIX.
 ```
     make install
 ```
+
+## License
+
+This project is licensed under the MIT License. Please see the LICENSE
+file for more information.
