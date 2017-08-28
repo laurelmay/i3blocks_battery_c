@@ -8,8 +8,6 @@
 #include "battery.h"
 #include "util.h"
 
-#define PERCENT(X, Y) ((X) * 100 / (Y))
-
 int battery_charge_now(battery_t *batt) {
     return read_battery_data_int(&batt->charge_now, batt->name, "charge_now");
 }
@@ -49,6 +47,10 @@ int battery_charge_full_design(battery_t *batt) {
 
 int battery_cycle_count(battery_t *batt) {
     return read_battery_data_int(&batt->cycle_count, batt->name, "cycle_count");
+}
+
+uint32_t percent(uint32_t a, uint32_t b) {
+    return (a * 100) / b;
 }
 
 /* Exported functions begin here */
@@ -95,13 +97,13 @@ int time_remaining(char **time_left_str, battery_t batt) {
 }
 
 uint32_t battery_health(battery_t batt) {
-    return PERCENT(batt.charge_full, batt.charge_full_design);
+    return percent(batt.charge_full, batt.charge_full_design);
 }
 
 uint32_t charge_percent(battery_t batt) {
-    return PERCENT(batt.charge_now, batt.charge_full);
+    return percent(batt.charge_now, batt.charge_full);
 }
 
 uint32_t abs_charge_percent(battery_t batt) {
-    return PERCENT(batt.charge_now, batt.charge_full_design);
+    return percent(batt.charge_now, batt.charge_full_design);
 }
