@@ -15,8 +15,9 @@ OBJS=$(SRCS:.c=.o)
 .PHONY: default
 default: all
 
-#debug: CFLAGS += -g -O0
-#debug: all
+.PHONY: debug
+debug: CFLAGS += -g -O0
+debug: all
 
 .PHONY: all
 all: $(EXE)
