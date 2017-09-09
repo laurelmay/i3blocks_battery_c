@@ -15,7 +15,7 @@ void usage() {
     printf("\n");
     printf("Environment variables:\n");
     printf("   BLOCK_INSTANCE: The battery to report status for. If not\n");
-    printf("      provided, BAT0 is assumed.\n");
+    printf("                   provided, BAT0 is assumed.\n");
 }
 
 int formatted_pango(battery_t batt, char **string) {
@@ -123,7 +123,22 @@ void display_batt_info_dialog(battery_t batt, char *time_left) {
     gtk_widget_destroy(dialog);
 }
 
+int is_help_arg_provided(int argc, char **argv) {
+    if (argc != 2) return 0;
+    char *test_arg = argv[2];
+    if (strcmp(test_arg, "-h") == 0 || strcmp(test_arg, "--help") == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 int main(int argc, char **argv) {
+    if (is_help_arg_provided(argc, argv)) {
+        usage();
+        return 0;
+    }
+
     if (argc > 1) fprintf(stderr, "All arguments are ignored.\n");
 
     battery_t *battery = calloc(1, sizeof(battery_t));
@@ -136,6 +151,7 @@ int main(int argc, char **argv) {
     if (initialize_battery(battery, name) != 0) {
         fprintf(stderr, "Unable to initialize battery");
         free(battery);
+        usage();
         return 1;
     }
 
