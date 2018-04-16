@@ -106,12 +106,12 @@ void display_batt_info_dialog(battery_t batt, char *time_left) {
             GTK_MESSAGE_DIALOG(dialog),
             "Battery name:\t\t%s\n"
             "Battery charge:\t\t%d\n"
-            "Charge when full:\t\t%d\n"
+            "Charge when full:\t%d\n"
             "Design full:\t\t\t%d\n"
-            "Cycle count:\t\t\t%d\n"
-            "Charging status:\t\t%s\n"
-            "Current now:\t\t\t%d\n"
-            "Current avg:\t\t\t%d\n"
+            "Cycle count:\t\t%d\n"
+            "Charging status:\t%s\n"
+            "Current now:\t\t%d\n"
+            "Current avg:\t\t%d\n"
             "%% Charged:\t\t\t%d%%\n"
             "Time remaining:\t\t%s\n"
             "Battery health:\t\t%d%%\n",
@@ -163,9 +163,17 @@ int main(int argc, char **argv) {
     if (pid == 0 && button) {
         char *time_left;
         time_remaining(&time_left, *battery);
-        char *helper_text = (battery->charge_status == CHARGING) ? "Until full" : "Until empty";
+        char *helper_text;
+        switch(battery->charge_status) {
+            case DISCHARGING: helper_text = "Until empty";  break;
+            case CHARGING:    helper_text = "Until full";   break;
+            case FULL:        helper_text = "Battery full"; break;
+            default:          helper_text = "";             break;
+        }
+
         switch(button[0] - '0') {
             case 1: // Left click
+                if (battery->charge_status == FULL) time_left = "";
                 display_notification(time_left, helper_text);
                 break;
             case 3: // Right click

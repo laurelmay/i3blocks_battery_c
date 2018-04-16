@@ -78,7 +78,6 @@ char *battery_status_as_string(battery_status status) {
 }
 
 int time_remaining(char **time_left_str, battery_t batt) {
-    // TODO: Find a better way to handle the FULL state. Maybe as "CHARGING"?
     float time_left;
     switch (batt.charge_status) {
         case CHARGING:
